@@ -1,58 +1,43 @@
-<!doctype html>
-<html lang="en>
-	<head>
-	
-	<title>PyScript demo</title>
-	
-<link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
-<script defer src="https://pyscript.net/alpha/pyscript.js"></script> 
+<!DOCTYPE html>
+<html>
+    <head>
+      <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+      <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
 
-	</head>
-	<body>
-	<py-script>
-	
-	from itertools import cycle
-	import random
-	
-	def control_number(swedish_id):
-		"""Calculate control number in Swedish personal IDs
+    </head>
 
-		:param swedish_id: A Swedish personal ID
-		:type swedish_id: str
+  <body>
+    <h1>Let's plot random numbers</h1>
+    <div id="plot"></div>
+    <py-script output="plot">
+    from itertools import cycle
+    import random
+      
+    def control_number(swedish_id):
+      if (type(swedish_id)!=str):
+      	swedish_id=str(swedish_id)
 
-		"""
-		if (type(swedish_id)!=str):
-			swedish_id=str(swedish_id)
+      assert swedish_id.isdigit()
+      assert len(swedish_id) == 8
+      mult_factors = cycle([1, 2])
 
-		assert swedish_id.isdigit()
-		assert len(swedish_id) == 8
+      def partial_sum(number, mult_factor):
+      	quotient, remainder = divmod(number * mult_factor, 10)
+      	return quotient + remainder
 
-		# Multiplication factors for each digit depending on its position
-		mult_factors = cycle([1, 2])
+      final_sum = sum(partial_sum(int(character), mult_factor) for character, mult_factor in zip(swedish_id, mult_factors) )
 
-		def partial_sum(number, mult_factor):
-			"""Calculate partial sum ofr a single digit."""
-			quotient, remainder = divmod(number * mult_factor, 10)
-			return quotient + remainder
+      # Calculate control number based on partial sums
+      control_number = -final_sum % 10
+      return control_number
 
-		final_sum = sum(
-			partial_sum(int(character), mult_factor)
-			for character, mult_factor in zip(swedish_id, mult_factors)
-			)
-
-		# Calculate control number based on partial sums
-		control_number = -final_sum % 10
-
-		return control_number
-		
-	def button_eventhandler(obj=0):
-		random_number = random.randint(10000000,99999999)
-		control_dig=control_number(random_number)
-		valid_id= str(random_number)+str(control_dig)
-		print("Your random ID number is: "+valid_id)
-		
-	button_eventhandler()
-	</py-script>
-	
-	</body>
+    def button_eventhandler(obj=0):
+      random_number = random.randint(10000000,99999999)
+      control_dig=control_number(random_number)
+      valid_id= str(random_number)+str(control_dig)
+      print("Your random ID number is: "+valid_id)
+    
+    button_eventhandler() 
+    </py-script>
+  </body>
 </html>
